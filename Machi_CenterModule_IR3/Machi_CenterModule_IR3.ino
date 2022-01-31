@@ -1,10 +1,12 @@
 //街センターモジュール
 //受光&USBMIDI
 
-#include <IRremote.h>
+//#include <IRremote.h>
+#include <IRremote.hpp>
 #include "MIDIUSB.h"
 
 int IRSensPin = 5;
+int IR_RECEIVE_PIN = 5;
 const int LedPin = 10;
 
 bool flag=0;
@@ -15,12 +17,13 @@ unsigned long currentTime;
 unsigned long checkTime;
 const unsigned long period = 100; //led点灯時間
 
-IRrecv irrecv(IRSensPin); // 受信で使用するオブジェクトを作成 'irrecv'
-decode_results results;  // 受信情報の格納先を作成 'results'
+//IRrecv irrecv(IRSensPin); // 受信で使用するオブジェクトを作成 'irrecv'
+//decode_results results;  // 受信情報の格納先を作成 'results'
 
 void setup(){
   Serial.begin(115200);
-  irrecv.enableIRIn();     // 作成したオブジェクトで赤外線受信をスタート
+  //irrecv.enableIRIn();     // 作成したオブジェクトで赤外線受信をスタート
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); // Start the receiver
   pinMode(LedPin,OUTPUT);
   startTime = millis();  //initial start time
 }
@@ -28,17 +31,27 @@ void setup(){
 void loop() {
     currentTime = millis(); //時計
     
-    if (irrecv.decode()&& flag ==0) { //受信したかどうかの確認 未受信＝0/受信＝1
-    //Serial.println(results.value, HEX); //16進表示
+    if (IrReceiver.decode()&& flag ==0){ //受信したかどうかの確認 未受信＝0/受信＝1
     Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
-    irrecv.resume();                    // .decode()の返り値をリセット
-    noteOn(0, 36, 64);   // Channel 0, middle C, normal velocity
+    //IrReceiver.printIRResultShort(&Serial); // optional use new print version
+      
+    //Serial.println(results.value, HEX); //16進表示
+    //Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
+    //irrecv.resume();                    // .decode()の返り値をリセット
+    IrReceiver.resume(); // Enable receiving of the next value
+
+    if(IrReceiver.decodedIRData.decodedRawData == 0x1111)noteOn(0, 36, 64);   // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x2222 || IrReceiver.decodedIRData.decodedRawData ==0x0)noteOn(0, 37, 64);   // Channel 0, middle C, normal velocity
+
+
+    
     MidiUSB.flush();
     flag=1;
     checkTime = millis();
     }
     else{
     noteOff(0, 36, 64);  // Channel 0, middle C, normal velocity
+    noteOff(0, 37, 64);  // Channel 0, middle C, normal velocity
     MidiUSB.flush();
     flag=0;
     }
