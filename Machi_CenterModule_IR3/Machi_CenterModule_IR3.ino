@@ -2,11 +2,11 @@
 //受光&USBMIDI
 
 //#include <IRremote.h>
-#include <IRremote.hpp>
+#include <IRremote.hpp> //IRremote.hppが最新verなのでこちらで
 #include "MIDIUSB.h"
 
 int IRSensPin = 5;
-int IR_RECEIVE_PIN = 5;
+int IR_RECEIVE_PIN = 2;
 const int LedPin = 10;
 
 bool flag=0;
@@ -26,6 +26,7 @@ void setup(){
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); // Start the receiver
   pinMode(LedPin,OUTPUT);
   startTime = millis();  //initial start time
+  controlChange(0, 111, 70);
 }
 
 void loop() {
@@ -40,18 +41,27 @@ void loop() {
     //irrecv.resume();                    // .decode()の返り値をリセット
     IrReceiver.resume(); // Enable receiving of the next value
 
-    if(IrReceiver.decodedIRData.decodedRawData == 0x1111)noteOn(0, 36, 64);   // Channel 0, middle C, normal velocity
-    else if(IrReceiver.decodedIRData.decodedRawData ==0x2222 || IrReceiver.decodedIRData.decodedRawData ==0x0)noteOn(0, 37, 64);   // Channel 0, middle C, normal velocity
-
-
+    if(IrReceiver.decodedIRData.decodedRawData == 0x1){noteOn(0, 37, 64);}   // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x2){noteOn(0, 38, 64);}   // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x3){noteOn(0, 39, 64);}  // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x4){noteOn(0, 40, 64);}   // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x5){noteOn(0, 41, 64);}   // Channel 0, middle C, normal velocity
+    else if(IrReceiver.decodedIRData.decodedRawData ==0x6){noteOn(0, 42, 64);}   // Channel 0, middle C, normal velocity
+    else {noteOn(0, 36, 64);}
     
     MidiUSB.flush();
     flag=1;
     checkTime = millis();
     }
     else{
+    delay(50);
+    noteOff(0, 35, 64);
     noteOff(0, 36, 64);  // Channel 0, middle C, normal velocity
     noteOff(0, 37, 64);  // Channel 0, middle C, normal velocity
+    noteOff(0, 38, 64);
+    noteOff(0, 39, 64);
+    noteOff(0, 40, 64);
+    noteOff(0, 41, 64);
     MidiUSB.flush();
     flag=0;
     }

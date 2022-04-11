@@ -26,7 +26,7 @@ void loop() {
   currentTime = millis(); //時計
   int PhotoReflectorVal;
 //unsigned int data = 0x8F71FE0 
-  unsigned int data = 0x1111111;  //赤外線送信データ
+  unsigned int data = 0x1;  //赤外線送信データ
   PhotoReflectorVal = analogRead(Senspin); //アナログ1番ピンからセンサ値を読み込み
   Serial.println(analogRead(Senspin));
   if(PhotoReflectorVal<450 && Sensflag ==0){
@@ -42,6 +42,7 @@ void loop() {
 
   if(currentTime < checkTime+period){
     digitalWrite(LedPin,HIGH);
+    Serial.println("led");
   }else{digitalWrite(LedPin,LOW);}
   
 }
