@@ -9,7 +9,7 @@
 
 RH_ASK driver(txSpeed, rxPin, txPin);
 
-char * msg = "63"; // 送信するメッセージ、後でEEPROMから読むように変更
+char * msg = "C"; // 送信するメッセージ、後でEEPROMから読むように変更
 
 // tettouアルゴリズム
 static const uint16_t historyLength = 30; //ここでオン・オフともに差分をためる分の長さ
@@ -17,10 +17,13 @@ int32_t history[historyLength] = {0};
 uint32_t historyIndex = 0;
 int32_t sensorSum = 0;//センサーオフのときの足し算したやつ
 int32_t current = 0;
-int32_t thresholdOnce = 4;  //ここで感度変えられそう(-分の差分)
+int32_t thresholdOnce = 3;  //ここで感度変えられそう(-分の差分)
 int32_t threshold = thresholdOnce * historyLength;
 bool pastSensorFlag = false;
+bool currentSensorFlag = false;
 uint32_t sensorLatency = 30; // センサーの応答特性（micro sec）
+uint16_t historyOnThreshold = historyLength * 0.5; // この数以上来てたらオン
+uint16_t historyOffThreshold = historyLength * 0.2; // この数未満になったらオフ
 
 void setup()
 {
@@ -33,6 +36,11 @@ void setup()
 
     pinMode(irLedPin, OUTPUT);
     digitalWrite(irLedPin, HIGH);
+
+    // historyをリセット
+    for (int i=0;i<historyLength;++i) {
+      history[i] = 0;
+    }
 }
 
 void sendMsg(char* msg) {
@@ -54,21 +62,42 @@ void loop()
   delayMicroseconds(sensorLatency);
   current -= analogRead(A1); // オンのときで差分を取る（反射物があるときが正の値になる）
 
-  sensorSum += current;
+
+  uint16_t currentState = current >= thresholdOnce ? 1 : 0;
+
+  sensorSum += currentState;
   sensorSum -= history[historyIndex];
-  history[historyIndex] = current;
+  history[historyIndex] = currentState;
   historyIndex++;
   if (historyIndex >= historyLength) historyIndex = 0;
-    
-  bool currentSensorFlag = sensorSum >= threshold;
+  
+  // オフ状態の時、オンをトリガーする
+  if (!pastSensorFlag) {
+    // オンのしきい値は高い
+    if (sensorSum >= historyOnThreshold) {
+      currentSensorFlag = true;
+    } else {
+      currentSensorFlag = false;
+    }
+  }
+  // オン状態のとき、オフをトリガーする
+  else {
+    // オフのしきい値は低い
+    if (sensorSum < historyOffThreshold) {
+      currentSensorFlag = false;
+    } else {
+      currentSensorFlag = true;
+    }
+  }
+
   if (currentSensorFlag && !pastSensorFlag) {
     sendMsg(msg);
   }
   pastSensorFlag = currentSensorFlag;
 
 
-  //Serial.print(current);
-  //Serial.print(' ');
-  //Serial.println(sensorSum);
+  Serial.print(current);
+  Serial.print(' ');
+  Serial.println(sensorSum);
   
 }
