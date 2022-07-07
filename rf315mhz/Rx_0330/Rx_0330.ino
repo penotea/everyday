@@ -37,7 +37,7 @@ void setup()
 
 void loop()
 {
-    uint8_t buf[4]  = {0}; 
+    uint8_t buf[1]  = {0}; 
     uint8_t buflen = sizeof(buf);
     
     if (driver.recv(buf, &buflen)) // Non-blocking
@@ -47,48 +47,48 @@ void loop()
       
       if(strncmp((char*)buf, Key_A,strlen(Key_A)) == 0){ //A
         Serial.println("A");
-        noteOn(3, 37, 64);
+        noteOn(3, 63, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
         delay(100);
         
-        noteOff(3, 37, 64);
+        noteOff(3, 63, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_B,strlen(Key_B)) == 0 ){ //B
         Serial.println("B");
-        noteOn(3, 38, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 68, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
         delay(100);
         
-        noteOff(3, 38, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 68, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_C,strlen(Key_C)) == 0 ){ //C
         Serial.println("C");
-        noteOn(3, 39, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 56, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
         delay(100);
         
-        noteOff(3, 39, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 56, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_D,strlen(Key_D)) == 0 ){ //D
         Serial.println("D");
-        noteOn(3, 40, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 64, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
         delay(100);
         
-        noteOff(3, 40, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 64, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
