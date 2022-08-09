@@ -40,8 +40,8 @@ void loop() {
     //Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
     //irrecv.resume();                    // .decode()の返り値をリセット
     IrReceiver.resume(); // Enable receiving of the next value
-
-    if(IrReceiver.decodedIRData.decodedRawData == 0x1){noteOn(0, 37, 64);}   // Channel 0, middle C, normal velocity
+    
+         if(IrReceiver.decodedIRData.decodedRawData ==0x1){noteOn(0, 37, 64);}   // Channel 0, middle C, normal velocity
     else if(IrReceiver.decodedIRData.decodedRawData ==0x2){noteOn(0, 38, 64);}   // Channel 0, middle C, normal velocity
     else if(IrReceiver.decodedIRData.decodedRawData ==0x3){noteOn(0, 39, 64);}  // Channel 0, middle C, normal velocity
     else if(IrReceiver.decodedIRData.decodedRawData ==0x4){noteOn(0, 40, 64);}   // Channel 0, middle C, normal velocity
