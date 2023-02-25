@@ -1,10 +1,9 @@
 #include <RH_ASK.h>
 #include <SPI.h> // Not actually used but needed to compile
 
-// tx/rx configuration
+// 無線モジュールtx/rx configuration
 #define rxPin 2 // ATTiny, RX on D3 (pin 2 on attiny85)
 #define txPin 9 // ATTiny, TX on D1 (pin 0 on attiny85)
-#define irLedPin 14 // for photo reflector's LED  promicro=14,promini=12
 #define txSpeed 4000
 
 RH_ASK driver(txSpeed, rxPin, txPin);
@@ -12,7 +11,9 @@ RH_ASK driver(txSpeed, rxPin, txPin);
 char * msg = "A"; // 送信するメッセージ
 
 //led
-#define ledPin 6  
+//たぶんいらないかも確認(なくしたLED)
+//#define ledPin 6  
+
 int brightness=0;
 int ledflag=0;
 unsigned long prevtime , nexttime;
@@ -20,7 +21,7 @@ unsigned long intervaltime = 2; //ledの更新周期
 
 //neopixel
 #include <Adafruit_NeoPixel.h>
-#define PIN        16 //promini=11,promicro=16
+#define PIN        11 //promini=11,promicro=16
 #define NUMPIXELS 1
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 #define DELAYVAL 500
@@ -36,20 +37,21 @@ int pos = 0;
 //DIPSwの配列
 int DIPSw[4];
 
+#define irLedPin 12 // for photo reflector's LED  promicro=14,promini=12
+
 // PhotoReflector、tettouアルゴリズム
 static const uint16_t historyLength = 30; //ここでオン・オフともに差分をためる分の長さ
 int32_t history[historyLength] = {0};
 uint32_t historyIndex = 0;
 int32_t sensorSum = 0;//センサーオフのときの足し算したやつ
 int32_t current = 0;
-int32_t thresholdOnce = 8;  //ここで感度変えられそう(-分の差分)
+int32_t thresholdOnce = 6;  //ここで感度変えられそう(-分の差分)
 int32_t threshold = thresholdOnce * historyLength;
 bool pastSensorFlag = false;
-uint32_t sensorLatency = 30; // センサーの応答特性（micro sec）
+uint32_t sensorLatency = 20; // センサーの応答特性（micro sec）default:30
 
 void setup()
 {
-    pinMode(2,INPUT_PULLUP);
     Serial.begin(9600);
     if (!driver.init())
          Serial.println("init failed");
@@ -68,14 +70,19 @@ void setup()
     pinMode(5,INPUT_PULLUP);
 
     DIPSwRecognize();
-    
+
+    //起動時LED点灯
+    pixels.setPixelColor(0, pixels.Color(100,100,100));
+    pixels.show();   // Send the updated pixel colors to the hardware.
+    delay(1000);
+    pixels.clear(); 
 }
 
 void sendMsg(char* msg) {
     driver.send((uint8_t *)msg, strlen(msg));
     driver.waitPacketSent();
-    Serial.print("sent ");
-    Serial.println(msg);
+    //Serial.print("sent ");
+    //Serial.println(msg);
     //digitalWrite(10,HIGH);
     //delay(200);
     //digitalWrite(10,LOW);
@@ -85,7 +92,8 @@ void loop()
 {
   DIPSwRecognize();
   unsigned long CountMillis = millis();
-  //センサーledの処理
+  
+  //neopixelの処理
   if((CountMillis - prevtime) >= intervaltime){
     if(ledflag==1){
       brightness+=2;
@@ -96,23 +104,25 @@ void loop()
       if(brightness<=0)ledflag=0;
     }
     prevtime += intervaltime;
-    //Serial.print("brightness:");
-    //Serial.println(brightness);
   }
-  analogWrite(ledPin,brightness);
-
   //neopixel lights
   pixels.setPixelColor(0, pixels.Color(0,0,brightness));
   pixels.show();   // Send the updated pixel colors to the hardware.
   if(brightness==0)pixels.clear(); 
+  
+  //たぶんいらない昔のled
+  //analogWrite(ledPin,brightness);
 
+
+  //フォトリフレクタプログラム
   digitalWrite(irLedPin, LOW);
   delayMicroseconds(sensorLatency);
-  current = analogRead(A1); // オフのときの値を取る
+  current = analogRead(A1); // オフのときのフォトトランジスタ値を取る
   digitalWrite(irLedPin, HIGH);
   delayMicroseconds(sensorLatency);
   current -= analogRead(A1); // オンのときで差分を取る（反射物があるときが正の値になる）
-
+  digitalWrite(irLedPin, LOW);  //IRLED消灯
+  
   sensorSum += current;
   sensorSum -= history[historyIndex];
   history[historyIndex] = current;
@@ -166,7 +176,7 @@ void DIPSwRecognize(){
   if(SumDipSw==1101)msg = "F";
   if(SumDipSw==1110)msg = "G";
   if(SumDipSw==1111)msg = "H";
-
+  
   if(SumDipSw==2000)msg = "1";
   if(SumDipSw==2001)msg = "2";
   if(SumDipSw==2010)msg = "3";
