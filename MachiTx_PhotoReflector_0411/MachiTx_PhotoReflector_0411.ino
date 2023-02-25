@@ -109,9 +109,18 @@ void loop() {
   sensorsUpdate();
 
   // センサーの結果を使う
-  sensors[0].isTriggered();
   if (sensors[0].isTriggered()) {
-    sendMsg(msg);
+    sendMsg("A");
+    ledflag = 1;  //led点滅のflagを1に
+  }
+
+  if (sensors[1].isTriggered()) {
+    sendMsg("B");
+    ledflag = 1;  //led点滅のflagを1に
+  }
+
+  if (sensors[2].isTriggered()) {
+    sendMsg("C");
     ledflag = 1;  //led点滅のflagを1に
   }
 
