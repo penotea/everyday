@@ -20,15 +20,22 @@ const char Key_F[] =  "F";
 const char Key_G[] =  "G";
 const char Key_H[] =  "H";
 
-const char Key_1[] =  "1";
-const char Key_2[] =  "2";
-const char Key_3[] =  "3";
-const char Key_4[] =  "4";
+const char Key_I[] =  "I";
+const char Key_J[] =  "J";
+const char Key_K[] =  "K";
+const char Key_L[] =  "L";
 
-const char Key_5[] =  "5";
-const char Key_6[] =  "6";
-const char Key_7[] =  "7";
-const char Key_8[] =  "8";
+const char Key_a[] =  "a";
+const char Key_b[] =  "b";
+const char Key_c[] =  "c";
+const char Key_d[] =  "d";
+
+const char Key_e[] =  "e";
+const char Key_f[] =  "f";
+const char Key_g[] =  "g";
+const char Key_h[] =  "h";
+const char Key_i[] =  "i";
+const char Key_j[] =  "j";
 
 const char Key_X[] = "X"; //clock
 
@@ -156,7 +163,7 @@ void loop()
 
       //1~8
 
-      if(strncmp((char*)buf, Key_1,strlen(Key_1)) == 0){ //1
+      if(strncmp((char*)buf, Key_a,strlen(Key_a)) == 0){ //1
         Serial.println("1");
         noteOn(4, 36, 64);
         MidiUSB.flush();
@@ -168,7 +175,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if (strncmp((char*)buf, Key_2,strlen(Key_2)) == 0 ){ //B
+      if (strncmp((char*)buf, Key_b,strlen(Key_b)) == 0 ){ //B
         Serial.println("2");
         noteOn(4, 37, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -180,7 +187,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if (strncmp((char*)buf, Key_3,strlen(Key_3)) == 0 ){ //3
+      if (strncmp((char*)buf, Key_c,strlen(Key_c)) == 0 ){ //3
         Serial.println("3");
         noteOn(4, 38, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -192,7 +199,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if (strncmp((char*)buf, Key_4,strlen(Key_4)) == 0 ){ //4
+      if (strncmp((char*)buf, Key_d,strlen(Key_d)) == 0 ){ //4
         Serial.println("4");
         noteOn(4, 39, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -204,7 +211,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if (strncmp((char*)buf, Key_5,strlen(Key_5)) == 0 ){ //5
+      if (strncmp((char*)buf, Key_e,strlen(Key_e)) == 0 ){ //5
         Serial.println("5");
         noteOn(4, 40, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -216,7 +223,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if (strncmp((char*)buf, Key_6,strlen(Key_6)) == 0 ){ //6
+      if (strncmp((char*)buf, Key_f,strlen(Key_f)) == 0 ){ //6
         Serial.println("6");
         noteOn(4, 41, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -228,7 +235,7 @@ void loop()
         digitalWrite(ledPin, LOW);
       }
       
-      if(strncmp((char*)buf, Key_7,strlen(Key_7)) == 0){ //7
+      if(strncmp((char*)buf, Key_g,strlen(Key_g)) == 0){ //7
         Serial.println("7");
         noteOn(4, 42, 64);
         MidiUSB.flush();
@@ -238,7 +245,7 @@ void loop()
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
-      if(strncmp((char*)buf, Key_8,strlen(Key_8)) == 0){ //8
+      if(strncmp((char*)buf, Key_h,strlen(Key_h)) == 0){ //8
         Serial.println("8");
         noteOn(4, 43, 64);
         MidiUSB.flush();
