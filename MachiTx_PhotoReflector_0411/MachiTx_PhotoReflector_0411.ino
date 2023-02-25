@@ -108,6 +108,12 @@ void loop() {
 
   sensorsUpdate();
 
+  // センサーの結果を使う
+  sensors[0].isTriggered();
+  if (sensors[0].isTriggered()) {
+    sendMsg(msg);
+    ledflag = 1;  //led点滅のflagを1に
+  }
 
   //Serial.print(current);
   //Serial.print(' ');
@@ -175,11 +181,5 @@ void sensorsUpdate() {
 
   for (int i = 0; i < sensorNum; ++i) {
     sensors[i].ledOff();
-  }
-
-  sensors[0].isTriggered();
-  if (sensors[0].isTriggered()) {
-    sendMsg(msg);
-    ledflag = 1;  //led点滅のflagを1に
   }
 }
