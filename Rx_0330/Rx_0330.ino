@@ -1,3 +1,4 @@
+
 #include <RH_ASK.h>
 #include "MIDIUSB.h"
 
@@ -7,6 +8,12 @@
 #define rxPin 2 // ATTiny, RX on D3 (pin 2 on attiny85)
 #define txPin 0 // ATTiny, TX on D1 (pin 0 on attiny85)
 #define txSpeed 4000
+
+//ロータリーSW
+#define RotarySW1 5
+#define RotarySW2 6
+#define RotarySW3 7
+#define RotarySW4 8
 
 RH_ASK driver(txSpeed, rxPin, txPin);
 
@@ -42,8 +49,15 @@ const char Key_X[] = "X"; //clock
 int nowclock,midiinterval;  //MIDIクロック関係
 unsigned long prevtime,nexttime,intervaltime; //時間
 
+int delaymillis=10;
+
 void setup()
 {
+  pinMode(RotarySW1, INPUT_PULLUP);
+  pinMode(RotarySW2, INPUT_PULLUP);
+  pinMode(RotarySW3, INPUT_PULLUP);
+  pinMode(RotarySW4, INPUT_PULLUP);
+
     Serial.begin(9600);
     if (!driver.init())
          Serial.println("init failed");
@@ -62,6 +76,8 @@ void loop()
 {
     uint8_t buf[1]  = {0}; 
     uint8_t buflen = sizeof(buf);
+
+    
     
     if (driver.recv(buf, &buflen)) // Non-blocking
     {
@@ -70,93 +86,151 @@ void loop()
       
       if(strncmp((char*)buf, Key_A,strlen(Key_A)) == 0){ //A
         Serial.println("A");
-        noteOn(3, 63, 64);
+        noteOn(2, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 63, 64);
+        noteOff(2, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_B,strlen(Key_B)) == 0 ){ //B
         Serial.println("B");
-        noteOn(3, 68, 64);   // Channel 0, middle C, normal velocity
+        noteOn(2, 68, 100);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 68, 64);  // Channel 0, middle C, normal velocity
+        noteOff(2, 68, 100);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_C,strlen(Key_C)) == 0 ){ //C
         Serial.println("C");
-        noteOn(3, 56, 64);   // Channel 0, middle C, normal velocity
+        noteOn(2, 56, 100);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 56, 64);  // Channel 0, middle C, normal velocity
+        noteOff(2, 56, 100);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_D,strlen(Key_D)) == 0 ){ //D
         Serial.println("D");
-        noteOn(3, 64, 64);   // Channel 0, middle C, normal velocity
+        //noteOn(3, 64, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 64, 64);  // Channel 0, middle C, normal velocity
+        //noteOff(3, 64, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_E,strlen(Key_E)) == 0 ){ //E
         Serial.println("E");
-        noteOn(3, 41, 64);   // Channel 0, middle C, normal velocity
+        //noteOn(3, 41, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 68, 100); 
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 41, 64);  // Channel 0, middle C, normal velocity
+        //noteOff(3, 41, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 68, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if (strncmp((char*)buf, Key_F,strlen(Key_F)) == 0 ){ //F
         Serial.println("F");
-        noteOn(3, 42, 64);   // Channel 0, middle C, normal velocity
+        //noteOn(3, 42, 64);   // Channel 0, middle C, normal velocity
+        noteOn(3, 56, 100); 
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
-        noteOff(3, 42, 64);  // Channel 0, middle C, normal velocity
+        //noteOff(3, 42, 64);  // Channel 0, middle C, normal velocity
+        noteOff(3, 56, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       
       if(strncmp((char*)buf, Key_G,strlen(Key_G)) == 0){ //G
         Serial.println("G");
-        noteOn(3, 43, 64);
+        //noteOn(3, 43, 64);
+        noteOn(4, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
-        noteOff(3, 43, 64);
+        delay(delaymillis);
+        //noteOff(3, 43, 64);
+        noteOff(4, 63, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
       if(strncmp((char*)buf, Key_H,strlen(Key_H)) == 0){ //H
         Serial.println("H");
-        noteOn(3, 44, 64);
+        //noteOn(3, 44, 64);
+        noteOn(4, 68, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
-        noteOff(3, 44, 64);
+        delay(delaymillis);
+        //noteOff(3, 44, 64);
+        noteOff(4, 68, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, LOW);
+      }
+      if(strncmp((char*)buf, Key_I,strlen(Key_I)) == 0){ //I
+        Serial.println("I");
+        //noteOn(3, 44, 64);
+        noteOn(4, 56, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, HIGH);
+        delay(delaymillis);
+        //noteOff(3, 44, 64);
+        noteOff(4, 56, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, LOW);
+      }
+      if(strncmp((char*)buf, Key_J,strlen(Key_J)) == 0){ //J
+        Serial.println("J");
+        //noteOn(3, 44, 64);
+        noteOn(5, 63, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, HIGH);
+        delay(delaymillis);
+        //noteOff(3, 44, 64);
+        noteOff(5, 63, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, LOW);
+      }
+      if(strncmp((char*)buf, Key_K,strlen(Key_K)) == 0){ //K
+        Serial.println("K");
+        //noteOn(3, 44, 64);
+        noteOn(5, 68, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, HIGH);
+        delay(delaymillis);
+        //noteOff(3, 44, 64);
+        noteOff(5, 68, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, LOW);
+      }
+      if(strncmp((char*)buf, Key_L,strlen(Key_L)) == 0){ //L
+        Serial.println("L");
+        //noteOn(3, 44, 64);
+        noteOn(5, 56, 100);
+        MidiUSB.flush();
+        digitalWrite(ledPin, HIGH);
+        delay(delaymillis);
+        //noteOff(3, 44, 64);
+        noteOff(5, 56, 100);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
@@ -168,7 +242,7 @@ void loop()
         noteOn(4, 36, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 36, 64);
         MidiUSB.flush();
@@ -180,7 +254,7 @@ void loop()
         noteOn(4, 37, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 37, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -192,7 +266,7 @@ void loop()
         noteOn(4, 38, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 38, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -204,7 +278,7 @@ void loop()
         noteOn(4, 39, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 39, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -216,7 +290,7 @@ void loop()
         noteOn(4, 40, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 40, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -228,7 +302,7 @@ void loop()
         noteOn(4, 41, 64);   // Channel 0, middle C, normal velocity
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         
         noteOff(4, 41, 64);  // Channel 0, middle C, normal velocity
         MidiUSB.flush();
@@ -240,7 +314,7 @@ void loop()
         noteOn(4, 42, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         noteOff(4, 42, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
@@ -250,12 +324,40 @@ void loop()
         noteOn(4, 43, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, HIGH);
-        delay(10);
+        delay(delaymillis);
         noteOff(4, 43, 64);
         MidiUSB.flush();
         digitalWrite(ledPin, LOW);
       }
     }
+}
+
+int RotarySW(){
+  int s1, s2, s4, s8, state;
+  char state_h[3];
+   
+  s1 = digitalRead(RotarySW1);
+  s2 = digitalRead(RotarySW2);
+  s4 = digitalRead(RotarySW3);
+  s8 = digitalRead(RotarySW4);
+  state = s8 * 8 + s4 * 4 + s2 * 2 + s1;
+  sprintf(state_h, "%x", state);
+
+  Serial.print("s1 = ");
+  Serial.print(s1);  
+  Serial.print(", s2 = ");
+  Serial.print(s2);  
+  Serial.print(", s4 = ");
+  Serial.print(s4);  
+  Serial.print(", s8 = ");
+  Serial.print(s8);
+  Serial.print(", state = ");
+  Serial.print(state_h);
+  Serial.print("(");
+  Serial.print(state);
+  Serial.println(")");
+
+  return state_h;
 }
 
 

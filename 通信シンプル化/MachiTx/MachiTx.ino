@@ -5,26 +5,26 @@
 // 無線モジュールtx/rx configuration
 #define rxPin 2  // ATTiny, RX on D3 (pin 2 on attiny85)
 #define txPin 9  // ATTiny, TX on D1 (pin 0 on attiny85)
-#define txSpeed 4000
+#define txSpeed 1000
 
-RH_ASK driver(txSpeed, rxPin, txPin);
+RH_ASK driver(txSpeed, rxPin, txPin,false);
 
-char* msg[3];  // 送信するメッセージ
+uint8_t msg[3];  // 送信するメッセージ
 
-int sendrepeat=1; //繰り返し送る回数
+int sendrepeat=0; //繰り返し送る回数
 
 //音色系
-char* msgA[] = {"A","B","C"};  // 送信するメッセージ
-char* msgB[] = {"D","E","F"};  // 送信するメッセージ
-char* msgC[] = {"G","H","I"};  // 送信するメッセージ
+uint8_t msgA[] = {0,1,2};  // 送信するメッセージ
+uint8_t msgB[] = {3,4,5};  // 送信するメッセージ
+uint8_t msgC[] = {6,7,8};  // 送信するメッセージ
 
-char* msgD[] = {"J","K","L"};  // 送信するメッセージ
+uint8_t msgD[] = {9,10,11};  // 送信するメッセージ
 
 //パーカッション系
-char* msg1[] = {"a","b","c"};  // 送信するメッセージ
-char* msg2[] = {"d","e","f"};  // 送信するメッセージ
-char* msg3[] = {"g","h","i"};  // 送信するメッセージ
-char* msg4[] = {"j","k","l"};  // 送信するメッセージ
+uint8_t msg1[] = {101,102,103};  // 送信するメッセージ
+uint8_t msg2[] = {104,105,106};  // 送信するメッセージ
+uint8_t msg3[] = {107,108,109};  // 送信するメッセージ
+uint8_t msg4[] = {110,111,112};  // 送信するメッセージ
 
 //led
 //たぶんいらないかも確認(なくしたLED)
@@ -84,22 +84,22 @@ void setup() {
 
   // sensors初期化
   sensors[0].setup(12, A1);
-  sensors[1].setup(10, A2);
+  sensors[1].setup(10, A2); //ここだけ調子悪い
   sensors[2].setup(8, A3);
 }
 
 //メッセージ
-void sendMsg(char* msg) {
-  for(int i=0;i<=sendrepeat;i++){
-  driver.send((uint8_t*)msg, strlen(msg));
-  driver.waitPacketSent();
-  }
+void sendMsg(uint8_t msg) {
+    for(int i = 0; i <= sendrepeat; i++){
+        driver.send(&msg, sizeof(msg));
+        driver.waitPacketSent();
+    }
 }
 
 void loop() {
   DIPSwRecognize();
   unsigned long CountMillis = millis();
-  
+
   //neopixelの処理
   if ((CountMillis - prevtime) >= intervaltime) {
     if (ledflag == 1) {
@@ -125,19 +125,29 @@ void loop() {
 
   // センサーの結果を使う
   if (sensors[0].isTriggered()) {
+    //サウンド処理
+    //tone(13,440,100);
+    /*
+    for (int i = 0; i < 100; ++i) {
+    digitalWrite(13, random(2));
+    delayMicroseconds(1000);
+    }
+    digitalWrite(13,LOW);
+    */
+
     //sendMsg(msg[0]);
-    if (SumDipSw == 1000)sendMsg(msgA[0]);
-    if (SumDipSw == 1100)sendMsg(msgB[0]);
-    if (SumDipSw == 1110)sendMsg(msgC[0]);
-    if (SumDipSw == 1111)sendMsg(msgD[0]);
+    if (SumDipSw == 2000)sendMsg(msgA[0]);
+    if (SumDipSw == 2100)sendMsg(msgB[0]);
+    if (SumDipSw == 2110)sendMsg(msgC[0]);
+    if (SumDipSw == 2111)sendMsg(msgD[0]);
     //if (SumDipSw == 1101)sendMsg(msgE[0]);
     //if (SumDipSw == 1110)sendMsg(msgF[0]);
     //if (SumDipSw == 1111)sendMsg(msgG[0]);
 
-    if (SumDipSw == 2000)sendMsg(msg1[0]);
-    if (SumDipSw == 2100)sendMsg(msg2[0]);
-    if (SumDipSw == 2110)sendMsg(msg3[0]);
-    if (SumDipSw == 2111)sendMsg(msg4[0]);
+    if (SumDipSw == 1000)sendMsg(msg1[0]);
+    if (SumDipSw == 1100)sendMsg(msg2[0]);
+    if (SumDipSw == 1110)sendMsg(msg3[0]);
+    if (SumDipSw == 1111)sendMsg(msg4[0]);
     //if (SumDipSw == 2100)sendMsg(msg5[0]);
     //if (SumDipSw == 2101)sendMsg(msg6[0]);
     //if (SumDipSw == 2110)sendMsg(msg7[0]);
@@ -146,19 +156,22 @@ void loop() {
   }
 
   if (sensors[1].isTriggered()) {
+    //サウンド処理
+    //tone(13,880,100);
+
     //sendMsg(msg[1]);
-    if (SumDipSw == 1000)sendMsg(msgA[1]);
-    if (SumDipSw == 1100)sendMsg(msgB[1]);
-    if (SumDipSw == 1110)sendMsg(msgC[1]);
-    if (SumDipSw == 1111)sendMsg(msgD[1]);
+    if (SumDipSw == 2000)sendMsg(msgA[1]);
+    if (SumDipSw == 2100)sendMsg(msgB[1]);
+    if (SumDipSw == 2110)sendMsg(msgC[1]);
+    if (SumDipSw == 2111)sendMsg(msgD[1]);
     //if (SumDipSw == 1101)sendMsg(msgE[1]);
     //if (SumDipSw == 1110)sendMsg(msgF[1]);
     //if (SumDipSw == 1111)sendMsg(msgG[1]);
 
-    if (SumDipSw == 2000)sendMsg(msg1[1]);
-    if (SumDipSw == 2100)sendMsg(msg2[1]);
-    if (SumDipSw == 2110)sendMsg(msg3[1]);
-    if (SumDipSw == 2111)sendMsg(msg4[1]);
+    if (SumDipSw == 1000)sendMsg(msg1[1]);
+    if (SumDipSw == 1100)sendMsg(msg2[1]);
+    if (SumDipSw == 1110)sendMsg(msg3[1]);
+    if (SumDipSw == 1111)sendMsg(msg4[1]);
     //if (SumDipSw == 2100)sendMsg(msg5[1]);
     //if (SumDipSw == 2101)sendMsg(msg6[1]);
     //if (SumDipSw == 2110)sendMsg(msg7[1]);
@@ -167,19 +180,22 @@ void loop() {
   }
 
   if (sensors[2].isTriggered()) {
+    //サウンド処理
+    //tone(13,1660,100);
+
     //sendMsg(msg[2]);
-    if (SumDipSw == 1000)sendMsg(msgA[2]);
-    if (SumDipSw == 1100)sendMsg(msgB[2]);
-    if (SumDipSw == 1110)sendMsg(msgC[2]);
-    if (SumDipSw == 1111)sendMsg(msgD[2]);
+    if (SumDipSw == 2000)sendMsg(msgA[2]);
+    if (SumDipSw == 2100)sendMsg(msgB[2]);
+    if (SumDipSw == 2110)sendMsg(msgC[2]);
+    if (SumDipSw == 2111)sendMsg(msgD[2]);
     //if (SumDipSw == 1101)sendMsg(msgE[0]);
     //if (SumDipSw == 1110)sendMsg(msgF[0]);
     //if (SumDipSw == 1111)sendMsg(msgG[0]);
 
-    if (SumDipSw == 2000)sendMsg(msg1[2]);
-    if (SumDipSw == 2100)sendMsg(msg2[2]);
-    if (SumDipSw == 2110)sendMsg(msg3[2]);
-    if (SumDipSw == 2111)sendMsg(msg4[2]);
+    if (SumDipSw == 1000)sendMsg(msg1[2]);
+    if (SumDipSw == 1100)sendMsg(msg2[2]);
+    if (SumDipSw == 1110)sendMsg(msg3[2]);
+    if (SumDipSw == 1111)sendMsg(msg4[2]);
     //if (SumDipSw == 2100)sendMsg(msg5[0]);
     //if (SumDipSw == 2101)sendMsg(msg6[0]);
     //if (SumDipSw == 2110)sendMsg(msg7[0]);
@@ -192,51 +208,17 @@ void loop() {
   //Serial.println(sensorSum);
 }
 
-
-//サーボ回転関数
-/*
-void RotateServo(int ServoSpeed,int ServoPos){
-  for (pos = 0; pos <= ServoPos; pos += 1) {  //ServoPos分回転
-    //myservo.write(pos);
-    servo.write(pos);
-    delay(ServoSpeed);  //デフォルトは15
-  }
-}
-*/
-
 //DIPSW関数
 void DIPSwRecognize() {
-  DIPSw[0] = !digitalRead(2);
-  DIPSw[1] = !digitalRead(3);
-  DIPSw[2] = !digitalRead(4);
-  DIPSw[3] = !digitalRead(5);
+  DIPSw[0] = digitalRead(2);
+  DIPSw[1] = digitalRead(3);
+  DIPSw[2] = digitalRead(4);
+  DIPSw[3] = digitalRead(5);
 
   if (DIPSw[0] == 0) DIPSw[0] = 2;  //計算上1000の値を1か2に
 
   SumDipSw = DIPSw[0] * 1000 + DIPSw[1] * 100 + DIPSw[2] * 10 + DIPSw[3];
-  
-  //Serial.print("DipSw:");
-  //Serial.println(SumDipSw);
 
-  /*
-  if (SumDipSw == 1000) msg = "A";
-  if (SumDipSw == 1001) msg = "B";
-  if (SumDipSw == 1010) msg = "C";
-  if (SumDipSw == 1011) msg = "D";
-  if (SumDipSw == 1100) msg = "E";
-  if (SumDipSw == 1101) msg = "F";
-  if (SumDipSw == 1110) msg = "G";
-  if (SumDipSw == 1111) msg = "H";
-
-  if (SumDipSw == 2000) msg = "1";
-  if (SumDipSw == 2001) msg = "2";
-  if (SumDipSw == 2010) msg = "3";
-  if (SumDipSw == 2011) msg = "4";
-  if (SumDipSw == 2100) msg = "5";
-  if (SumDipSw == 2101) msg = "6";
-  if (SumDipSw == 2110) msg = "7";
-  if (SumDipSw == 2111) msg = "8";
-  */
 }
 
 //フォトリフレクターセンシング
