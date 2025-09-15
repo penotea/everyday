@@ -12,7 +12,7 @@
  * - 9: 音声出力 (Mozzi PWM)
  * - 8, 10, 12: フォトリフレクタLED制御
  * - A1, A2, A3: フォトリフレクタ読み取り
- * - 11: NeoPixel LED (オプション)
+ * - 11: 普通のLED (音量に連動して明度変化)
  * 
  * 音程マッピング:
  * - センサー0 (左): C5 (523Hz) + C6 (1046Hz) - ド + 倍音
@@ -25,15 +25,12 @@
 #include <tables/sin2048_int8.h>
 #include <tables/square_no_alias_2048_int8.h>
 #include <ADSR.h>
-#include <Adafruit_NeoPixel.h>
 #include "PhotoReflectorModule.h"
 
 #define CONTROL_RATE 64 // Hz, powers of 2 are most reliable
 
-// NeoPixel設定
-#define NEOPIXEL_PIN 11
-#define NUMPIXELS 1
-Adafruit_NeoPixel pixels(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+// 普通のLED設定
+#define LED_PIN 11
 
 // フォトリフレクタ設定
 const int sensorNum = 3;
@@ -93,11 +90,15 @@ const int MIN_REPEATS = 7;          // 最小ディレイ回数
 const int MAX_REPEATS = 15;         // 最大ディレイ回数
 const float VOLUME_DECAY = 0.5f;    // 音量減衰率（1/2）
 
-// LED制御
-int brightness = 0;
-int ledflag = 0;
-unsigned long prevtime = 0;
-const unsigned long intervaltime = 1;
+// LED制御（音量連動対応）
+int ledBrightness = 0;
+bool ledActive = false;
+const int MAX_LED_BRIGHTNESS = 255;
+
+// 音量連動LED制御
+int currentAudioLevel = 0;  // 現在の音量レベル（0-127）
+int smoothedAudioLevel = 0; // スムージングされた音量レベル
+const float AUDIO_SMOOTHING = 0.8f; // スムージング係数（0.8で滑らか）
 
 // ランダム生成関数群
 int getRandomInterval() {
@@ -161,12 +162,9 @@ void setup() {
   
   // フィルター削除（シンプルな音声出力）
   
-  // NeoPixel初期化
-  pixels.begin();
-  pixels.setPixelColor(0, pixels.Color(100, 100, 100));
-  pixels.show();
-  delay(1000);
-  pixels.clear();
+  // LED初期化
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
   
   // フォトリフレクタセンサー初期化
   sensors[0].setup(12, A1);  // センサー0: LED=Pin12, Read=A1
@@ -177,23 +175,30 @@ void setup() {
 void updateControl() {
   unsigned long currentTime = millis();
   
-  // NeoPixel LED制御
-  if ((currentTime - prevtime) >= intervaltime) {
-    if (ledflag == 1) {
-      brightness += 2;
-      if (brightness > 255) ledflag = 2;
-    }
-    if (ledflag == 2) {
-      brightness--;
-      if (brightness <= 0) ledflag = 0;
-    }
-    prevtime += intervaltime;
-  }
+  // LED制御（音量連動対応）
+  // 音量レベルをスムージング
+  smoothedAudioLevel = (int)(AUDIO_SMOOTHING * smoothedAudioLevel + (1.0f - AUDIO_SMOOTHING) * currentAudioLevel);
   
-  // NeoPixel表示
-  pixels.setPixelColor(0, pixels.Color(0, 0, brightness));
-  pixels.show();
-  if (brightness == 0) pixels.clear();
+  // 音量に応じてLED明度を計算
+  if (smoothedAudioLevel > 5) {  // 最小閾値（ノイズ除去）
+    // 音量レベル（0-127）をLED明度（0-255）にマッピング
+    ledBrightness = map(smoothedAudioLevel, 0, 127, 0, MAX_LED_BRIGHTNESS);
+    ledBrightness = constrain(ledBrightness, 0, MAX_LED_BRIGHTNESS);
+    analogWrite(LED_PIN, ledBrightness);
+    ledActive = true;
+  } else {
+    // 音量が小さい場合は徐々にフェードアウト
+    if (ledActive) {
+      ledBrightness = ledBrightness * 0.95;  // ゆっくりフェードアウト
+      if (ledBrightness < 5) {
+        ledBrightness = 0;
+        ledActive = false;
+        digitalWrite(LED_PIN, LOW);
+      } else {
+        analogWrite(LED_PIN, ledBrightness);
+      }
+    }
+  }
   
   // フォトリフレクタ更新
   sensorsUpdate();
@@ -214,8 +219,6 @@ void updateControl() {
       // センサーに応じたランダム音程選択
       voices[i].currentFreq = getRandomNoteFromSensor(i);
       voices[i].fundamental->setFreq(voices[i].currentFreq);
-      
-      ledflag = 1;  // LED点滅開始
     }
   }
   
@@ -268,6 +271,9 @@ AudioOutput_t updateAudio() {
   // 基本的なクリッピング防止
   if (mixedSample > 127) mixedSample = 127;
   if (mixedSample < -128) mixedSample = -128;
+  
+  // 音量レベルを計算（LED制御用）
+  currentAudioLevel = abs(mixedSample);  // 絶対値で音量レベルを取得（0-127）
   
   return MonoOutput::from8Bit(mixedSample);
 }
